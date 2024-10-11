@@ -77,20 +77,40 @@ const RiskMatrix = () => {
     }
   };
 
-  const exportAsPNG = () => {
-    if (exportRef.current) {
-      html2canvas(exportRef.current, {
-        scale: 2,
-        backgroundColor: null,
-      }).then(canvas => {
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement('a');
-        link.download = `${matterName || 'risk-assessment'}.png`;
-        link.href = image;
-        link.click();
-      });
-    }
-  };
+const exportAsPNG = () => {
+  if (exportRef.current) {
+    html2canvas(exportRef.current, {
+      scale: 2,
+      backgroundColor: null,
+    }).then(canvas => {
+      canvas.toBlob(blob => {
+        if (navigator.clipboard && navigator.clipboard.write) {
+          navigator.clipboard.write([
+            new ClipboardItem({
+              'image/png': blob
+            })
+          ]).then(() => {
+            alert('Image copied to clipboard!');
+          }).catch(err => {
+            console.error('Failed to copy image: ', err);
+            fallbackDownload(canvas);
+          });
+        } else {
+          fallbackDownload(canvas);
+        }
+      }, 'image/png');
+    });
+  }
+};
+
+const fallbackDownload = (canvas) => {
+  const image = canvas.toDataURL("image/png");
+  const link = document.createElement('a');
+  link.download = `${matterName || 'risk-assessment'}.png`;
+  link.href = image;
+  link.click();
+  alert('Image downloaded (clipboard copy not supported in this browser).');
+};
 
   const getSliderPosition = (value) => {
     const riskToPercentage = {
