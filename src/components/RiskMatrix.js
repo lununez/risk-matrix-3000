@@ -83,33 +83,33 @@ const exportAsPNG = () => {
       scale: 2,
       backgroundColor: null,
     }).then(canvas => {
-      canvas.toBlob(blob => {
-        if (navigator.clipboard && navigator.clipboard.write) {
-          navigator.clipboard.write([
-            new ClipboardItem({
-              'image/png': blob
-            })
-          ]).then(() => {
-            alert('Image copied to clipboard!');
-          }).catch(err => {
-            console.error('Failed to copy image: ', err);
-            fallbackDownload(canvas);
-          });
-        } else {
-          fallbackDownload(canvas);
-        }
-      }, 'image/png');
+      // First, try to copy a text representation
+      const textRepresentation = `Risk Assessment for ${matterName}\nLikelihood: ${likelihoodLabels[5 - likelihood]}\nSeverity: ${severityLabels[severity - 1]}\nRisk Value: ${riskValue}\nAssessed Risk: ${getRiskLabel(riskValue)}`;
+      
+      navigator.clipboard.writeText(textRepresentation)
+        .then(() => {
+          alert('Risk assessment details copied to clipboard! Image will be downloaded separately.');
+          // Proceed with image download
+          downloadImage(canvas);
+        })
+        .catch(err => {
+          console.error('Failed to copy text: ', err);
+          alert('Failed to copy to clipboard. Image will be downloaded.');
+          downloadImage(canvas);
+        });
     });
   }
 };
 
-const fallbackDownload = (canvas) => {
-  const image = canvas.toDataURL("image/png");
-  const link = document.createElement('a');
-  link.download = `${matterName || 'risk-assessment'}.png`;
-  link.href = image;
-  link.click();
-  alert('Image downloaded (clipboard copy not supported in this browser).');
+const downloadImage = (canvas) => {
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${matterName || 'risk-assessment'}.png`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 };
 
   const getSliderPosition = (value) => {
