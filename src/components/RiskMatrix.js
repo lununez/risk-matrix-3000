@@ -84,7 +84,7 @@ const exportAsPNG = () => {
       backgroundColor: null,
     }).then(canvas => {
       // First, try to copy a text representation
-      const textRepresentation = `Risk Assessment for ${matterName}\nLikelihood: ${likelihoodLabels[5 - likelihood]}\nSeverity: ${severityLabels[severity - 1]}\nRisk Value: ${riskValue}\nAssessed Risk: ${getRiskLabel(riskValue)}`;
+      const textRepresentation = `Risk Assessment for ${matterName}\nLikelihood: ${likelihoodLabels[5 - likelihood]}\nImpact: ${impactLabels[impact - 1]}\nRisk Value: ${riskValue}\nAssessed Risk: ${getRiskLabel(riskValue)}`;
       
       navigator.clipboard.writeText(textRepresentation)
         .then(() => {
