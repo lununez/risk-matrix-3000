@@ -3,14 +3,14 @@ import html2canvas from 'html2canvas';
 
 const RiskMatrix = () => {
   const [likelihood, setLikelihood] = useState(1);
-  const [severity, setSeverity] = useState(1);
+  const [impact, setImpact] = useState(1);
   const [riskValue, setRiskValue] = useState(1);
   const [matterName, setMatterName] = useState('');
   const [savedAssessments, setSavedAssessments] = useState([]);
   const exportRef = useRef(null);
 
   const likelihoodLabels = ['Almost Certain (5)', 'Likely (4)', 'Possible (3)', 'Unlikely (2)', 'Rare (1)'];
-  const severityLabels = ['Insignificant (1)', 'Minor (2)', 'Significant (3)', 'Major (4)', 'Severe (5)'];
+  const impactLabels = ['Insignificant (1)', 'Minor (2)', 'Significant (3)', 'Major (4)', 'Severe (5)'];
 
   const matrix = [
     ['Medium (5)', 'High (10)', 'Very High (15)', 'Extreme (20)', 'Extreme (25)'],
@@ -49,9 +49,9 @@ const RiskMatrix = () => {
   };
 
   useEffect(() => {
-    const calculatedRisk = likelihood * severity;
+    const calculatedRisk = likelihood * impact;
     setRiskValue(calculatedRisk);
-  }, [likelihood, severity]);
+  }, [likelihood, impact]);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('savedAssessments') || '[]');
@@ -60,7 +60,7 @@ const RiskMatrix = () => {
 
   const saveAssessment = () => {
     if (matterName) {
-      const assessment = { matterName, likelihood, severity, riskValue };
+      const assessment = { matterName, likelihood, impact, riskValue };
       const updated = [...savedAssessments.filter(a => a.matterName !== matterName), assessment];
       setSavedAssessments(updated);
       localStorage.setItem('savedAssessments', JSON.stringify(updated));
@@ -72,7 +72,7 @@ const RiskMatrix = () => {
     if (assessment) {
       setMatterName(assessment.matterName);
       setLikelihood(assessment.likelihood);
-      setSeverity(assessment.severity);
+      setImpact(assessment.impact);
       setRiskValue(assessment.riskValue);
     }
   };
@@ -217,18 +217,18 @@ const RiskMatrix = () => {
           </div>
           
           <div style={{ flexGrow: 1 }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Severity</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Impact</h2>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'auto repeat(5, 1fr)', gap: '5px' }}>
               <div></div>
-              {severityLabels.map((label, index) => (
+              {impactLabels.map((label, index) => (
                 <button 
                   key={index} 
-                  onClick={() => setSeverity(index + 1)}
+                  onClick={() => setImpact(index + 1)}
                   style={{
                     ...buttonStyle,
-                    backgroundColor: severity === index + 1 ? '#007bff' : '#f0f0f0',
-                    color: severity === index + 1 ? 'white' : 'black',
+                    backgroundColor: impact === index + 1 ? '#007bff' : '#f0f0f0',
+                    color: impact === index + 1 ? 'white' : 'black',
                   }}
                 >
                   {label}
@@ -253,7 +253,7 @@ const RiskMatrix = () => {
                       style={{
                         ...cellStyle,
                         backgroundColor: getRiskColor(cell),
-                        border: 5 - rowIndex === likelihood && cellIndex + 1 === severity ? '3px solid black' : '1px solid #ddd',
+                        border: 5 - rowIndex === likelihood && cellIndex + 1 === impact ? '3px solid black' : '1px solid #ddd',
                       }}
                     >
                       {cell}
