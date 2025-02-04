@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 
 const riskLabels = [
@@ -24,6 +24,12 @@ const severityOptions = [
 
 const RiskMatrixApp = () => {
   const [riskFactors, setRiskFactors] = useState([{ label: '', description: '', likelihood: 1, severity: 1 }]);
+  const [overallRisk, setOverallRisk] = useState(1);
+
+  useEffect(() => {
+    const totalRisk = riskFactors.reduce((acc, factor) => acc + (factor.likelihood * factor.severity), 0);
+    setOverallRisk(totalRisk);
+  }, [riskFactors]);
 
   const handleAddRow = () => {
     setRiskFactors([...riskFactors, { label: '', description: '', likelihood: 1, severity: 1 }]);
@@ -38,13 +44,22 @@ const RiskMatrixApp = () => {
   const calculateRisk = (likelihood, severity) => likelihood * severity;
 
   const exportAsImage = () => {
-    const element = document.getElementById('risk-matrix');
+    const element = document.getElementById('risk-output');
     html2canvas(element).then(canvas => {
       const link = document.createElement('a');
       link.download = 'risk-matrix.png';
       link.href = canvas.toDataURL();
       link.click();
     });
+  };
+
+  const getRiskLabel = (value) => {
+    if (value <= 4) return 'Very Low';
+    if (value <= 8) return 'Low';
+    if (value <= 12) return 'Medium';
+    if (value <= 16) return 'High';
+    if (value <= 20) return 'Very High';
+    return 'Extreme';
   };
 
   return (
@@ -100,14 +115,44 @@ const RiskMatrixApp = () => {
       <button onClick={handleAddRow}>Add Risk Factor</button>
       <button onClick={exportAsImage} style={{ marginLeft: '10px' }}>Export Risk Matrix as PNG</button>
 
-      <div id="risk-matrix" style={{ marginTop: '30px', padding: '20px', background: '#f9f9f9' }}>
-        <h2>Risk Matrix</h2>
-        {riskFactors.map((factor, index) => (
-          <div key={index} style={{ margin: '10px 0', padding: '10px', background: '#e0e0e0' }}>
-            <strong>{factor.label}</strong>: {factor.description} <br />
-            <em>Risk Level:</em> {calculateRisk(factor.likelihood, factor.severity)}
+      <div id="risk-output" style={{ marginTop: '30px', padding: '20px', background: '#f9f9f9' }}>
+        <h2>Risk Matrix & Spectrum</h2>
+        <table border="1" cellPadding="5" style={{ borderCollapse: 'collapse', marginBottom: '20px' }}>
+          <thead>
+            <tr>
+              <th>Likelihood \ Severity</th>
+              {severityOptions.map(opt => (
+                <th key={opt.label}>{opt.label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {likelihoodOptions.map(likeOpt => (
+              <tr key={likeOpt.label}>
+                <td><strong>{likeOpt.label}</strong></td>
+                {severityOptions.map(sevOpt => {
+                  const riskValue = calculateRisk(likeOpt.value, sevOpt.value);
+                  const bgColor = `hsl(${120 - (riskValue * 4.8)}, 100%, 75%)`;
+                  return (
+                    <td key={sevOpt.label} style={{ backgroundColor: bgColor, textAlign: 'center' }}>
+                      {riskValue} ({getRiskLabel(riskValue)})
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={{ marginTop: '20px', position: 'relative' }}>
+          <div style={{ background: 'linear-gradient(to right, #90ee90, #ffff00, #ffa500, #ff4500, #ff0000)', height: '20px' }}></div>
+          <div style={{ position: 'absolute', left: `${(overallRisk / 25) * 100}%`, top: '-10px', transform: 'translateX(-50%)', fontWeight: 'bold' }}>
+            ▲
           </div>
-        ))}
+          <div style={{ textAlign: 'center', marginTop: '5px' }}>
+            Overall Risk: {overallRisk} ({getRiskLabel(overallRisk)})
+          </div>
+        </div>
       </div>
     </div>
   );
