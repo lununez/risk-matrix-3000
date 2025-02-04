@@ -35,7 +35,7 @@ const RiskMatrix = () => {
     const max = Math.max(...values);
     const min = Math.min(...values);
     const range = max - min;
-    
+
     if (range >= 3) {
       return Math.round((max + min * 2) / 3);
     }
@@ -64,6 +64,8 @@ const RiskMatrix = () => {
       });
     }
   };
+
+  const getSliderPosition = (value) => (value - 1) * 20;
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
@@ -125,6 +127,38 @@ const RiskMatrix = () => {
       <div ref={exportRef} style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
         <h2>Assessed Risk: {riskValue}</h2>
         <div>Likelihood: {likelihood} | Impact: {impact}</div>
+
+        <div style={{ margin: '20px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>Very Low</span>
+            <span>Extreme</span>
+          </div>
+          <div style={{ background: 'linear-gradient(to right, green, yellow, red)', height: '20px', position: 'relative' }}>
+            <div
+              style={{
+                position: 'absolute',
+                left: `${getSliderPosition(riskValue)}%`,
+                top: '-5px',
+                width: '10px',
+                height: '30px',
+                backgroundColor: 'black'
+              }}
+            ></div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '5px' }}>
+          {matrix.map((row, rowIndex) => (
+            row.map((cell, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                style={{ padding: '20px', backgroundColor: '#eee', textAlign: 'center', border: '1px solid #ccc' }}
+              >
+                {cell}
+              </div>
+            ))
+          ))}
+        </div>
       </div>
 
       <button onClick={exportAsPNG} style={{ marginTop: '20px' }}>Export as PNG</button>
