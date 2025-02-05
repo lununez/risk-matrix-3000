@@ -42,7 +42,6 @@ const ratingOptions = {
   ],
 };
 
-// Map a score (1–25) to a risk level label.
 function getRiskLevelLabel(score) {
   if (score <= 4) return "Very Low";
   else if (score <= 8) return "Low";
@@ -52,34 +51,29 @@ function getRiskLevelLabel(score) {
   else return "Extreme";
 }
 
-// Map a score to a pastel color gradient (green-to-red).
 function getCellColor(score) {
-  if (score <= 4) return "#a8e6a3"; // Very Low – light green
-  else if (score <= 8) return "#d4f7a3"; // Low – slightly different green/yellow
+  if (score <= 4) return "#a8e6a3"; // Very Low – pastel green
+  else if (score <= 8) return "#d4f7a3"; // Low – light green/yellow
   else if (score <= 12) return "#f7f7a3"; // Medium – yellow
   else if (score <= 16) return "#f7d4a3"; // High – light orange
   else if (score <= 20) return "#f7b8a3"; // Very High – orange/red
-  else return "#f7a8a8"; // Extreme – light red
+  else return "#f7a8a8"; // Extreme – pastel red
 }
 
 /*
-  A simple weighted averaging approach:
-  It calculates the arithmetic mean then adjusts it upward slightly 
-  by adding 25% of the difference between the maximum rating and the mean.
-  (This gives extra weight to higher ratings without being too extreme.)
+  A simple weighted average:
+  It takes the arithmetic mean and then bumps it upward by 25% of the gap between the max and the mean.
 */
 function computeWeightedAverage(ratings) {
   if (ratings.length === 0) return 0;
   const sum = ratings.reduce((a, b) => a + b, 0);
   const mean = sum / ratings.length;
   const max = Math.max(...ratings);
-  const adjusted = mean + 0.25 * (max - mean);
-  return adjusted;
+  return mean + 0.25 * (max - mean);
 }
 
 // --- Components ---
 
-// Input Section Component for a given risk type.
 const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [explanation, setExplanation] = useState("");
@@ -99,17 +93,22 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   return (
     <div
       style={{
-        margin: "10px",
+        margin: "10px 0",
         padding: "10px",
         border: "1px solid #ccc",
         borderRadius: "8px",
         boxShadow: "2px 2px 5px rgba(0,0,0,0.1)",
+        width: "100%",
       }}
     >
       <h3>{type}</h3>
       <div style={{ marginBottom: "8px" }}>
         <label>Category: </label>
-        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={{ width: "60%" }}
+        >
           {categories.map((cat, idx) => (
             <option key={idx} value={cat}>
               {cat}
@@ -124,11 +123,16 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
           placeholder="Please enter..."
           value={explanation}
           onChange={(e) => setExplanation(e.target.value)}
+          style={{ width: "60%" }}
         />
       </div>
       <div style={{ marginBottom: "8px" }}>
         <label>Rating: </label>
-        <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
+        <select
+          value={selectedRating}
+          onChange={(e) => setSelectedRating(e.target.value)}
+          style={{ width: "60%" }}
+        >
           {ratingOptions.map((opt, idx) => (
             <option key={idx} value={opt.value}>
               {opt.label} ({opt.value})
@@ -151,7 +155,6 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   );
 };
 
-// Table to display saved risk factors.
 const RiskFactorsTable = ({ title, risks }) => {
   return (
     <div style={{ margin: "10px" }}>
@@ -172,7 +175,9 @@ const RiskFactorsTable = ({ title, risks }) => {
               <tr key={idx}>
                 <td style={{ border: "1px solid #ccc", padding: "5px" }}>{risk.category}</td>
                 <td style={{ border: "1px solid #ccc", padding: "5px" }}>{risk.explanation}</td>
-                <td style={{ border: "1px solid #ccc", padding: "5px", textAlign: "center" }}>{risk.rating}</td>
+                <td style={{ border: "1px solid #ccc", padding: "5px", textAlign: "center" }}>
+                  {risk.rating}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -182,20 +187,24 @@ const RiskFactorsTable = ({ title, risks }) => {
   );
 };
 
-// The Risk Matrix component renders a 5x5 grid.
-// Note: The grid is built so that the lowest likelihood is at the bottom.
-const RiskMatrix = () => {
-  // Build a 5x5 grid where each cell's score = likelihood * severity.
+// Risk Matrix now accepts highlightCoordinates to show the applicable cell.
+const RiskMatrix = ({ highlightCoordinates }) => {
   const grid = [];
   for (let likelihood = 1; likelihood <= 5; likelihood++) {
     const row = [];
     for (let severity = 1; severity <= 5; severity++) {
       const score = likelihood * severity;
-      row.push({ score, label: getRiskLevelLabel(score), color: getCellColor(score) });
+      row.push({
+        score,
+        label: getRiskLevelLabel(score),
+        color: getCellColor(score),
+        likelihood,
+        severity,
+      });
     }
     grid.push(row);
   }
-  // Reverse rows so that lowest likelihood appears at the bottom.
+  // Reverse rows so that the lowest likelihood is at the bottom.
   grid.reverse();
 
   const cellStyle = {
@@ -207,6 +216,7 @@ const RiskMatrix = () => {
     justifyContent: "center",
     alignItems: "center",
     fontSize: "12px",
+    transition: "opacity 0.3s",
   };
 
   return (
@@ -222,12 +232,25 @@ const RiskMatrix = () => {
           <div>
             {grid.map((row, rowIndex) => (
               <div key={rowIndex} style={{ display: "flex" }}>
-                {row.map((cell, cellIndex) => (
-                  <div key={cellIndex} style={{ ...cellStyle, backgroundColor: cell.color }}>
-                    <div>{cell.label}</div>
-                    <div>{cell.score}</div>
-                  </div>
-                ))}
+                {row.map((cell, cellIndex) => {
+                  const isHighlighted =
+                    highlightCoordinates &&
+                    highlightCoordinates.likelihood === cell.likelihood &&
+                    highlightCoordinates.severity === cell.severity;
+                  return (
+                    <div
+                      key={cellIndex}
+                      style={{
+                        ...cellStyle,
+                        backgroundColor: cell.color,
+                        opacity: isHighlighted ? 1 : 0.25,
+                      }}
+                    >
+                      <div>{cell.label}</div>
+                      <div>{cell.score}</div>
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
@@ -237,24 +260,30 @@ const RiskMatrix = () => {
   );
 };
 
-// The Risk Spectrum slider with a dynamic black triangle indicator.
 const RiskSpectrum = ({ overallRisk }) => {
   const sliderWidth = 400; // pixels
-  // Map overall risk (range: 1-25) to a position on the slider.
+  // Map overall risk (range 1-25) to a position on the slider.
   const position = ((overallRisk - 1) / (25 - 1)) * sliderWidth;
+
+  const sliderContainerStyle = {
+    width: sliderWidth,
+    margin: "0 auto",
+  };
 
   const sliderStyle = {
     position: "relative",
-    width: sliderWidth,
-    height: "20px",
-    background: "linear-gradient(to right, #a8e6a3, #f7a8a8)",
-    margin: "20px auto",
+    width: "100%",
+    height: "30px",
+    // Adjusted gradient to include more defined yellow/orange midpoints.
+    background:
+      "linear-gradient(to right, #a8e6a3 0%, #d4f7a3 20%, #f7f7a3 50%, #f7d4a3 80%, #f7a8a8 100%)",
     borderRadius: "10px",
+    marginBottom: "10px",
   };
 
   const indicatorStyle = {
     position: "absolute",
-    left: position - 7, // adjust to center the triangle
+    left: position - 7,
     top: -10,
     width: "0",
     height: "0",
@@ -263,19 +292,26 @@ const RiskSpectrum = ({ overallRisk }) => {
     borderBottom: "10px solid black",
   };
 
+  const labelContainerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+  };
+
   return (
     <div>
       <h3>Risk Spectrum</h3>
-      <div style={sliderStyle}>
-        <div style={indicatorStyle}></div>
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", width: sliderWidth }}>
-        <span>Very Low</span>
-        <span>Low</span>
-        <span>Medium</span>
-        <span>High</span>
-        <span>Very High</span>
-        <span>Extreme</span>
+      <div style={sliderContainerStyle}>
+        <div style={sliderStyle}>
+          <div style={indicatorStyle}></div>
+        </div>
+        <div style={labelContainerStyle}>
+          <span>Very Low</span>
+          <span>Low</span>
+          <span>Medium</span>
+          <span>High</span>
+          <span>Very High</span>
+          <span>Extreme</span>
+        </div>
       </div>
     </div>
   );
@@ -289,7 +325,6 @@ const App = () => {
   const [severityRisks, setSeverityRisks] = useState([]);
   const exportRef = useRef();
 
-  // Handlers for adding risk factors.
   const handleAddLikelihoodRisk = (risk) => {
     setLikelihoodRisks([...likelihoodRisks, risk]);
   };
@@ -298,20 +333,20 @@ const App = () => {
     setSeverityRisks([...severityRisks, risk]);
   };
 
-  // Calculate overall risk: (weighted average likelihood) x (weighted average severity).
-  const calculateOverallRisk = () => {
-    const likelihoodRatings = likelihoodRisks.map((risk) => risk.rating);
-    const severityRatings = severityRisks.map((risk) => risk.rating);
+  const likelihoodRatings = likelihoodRisks.map((risk) => risk.rating);
+  const severityRatings = severityRisks.map((risk) => risk.rating);
+  const avgLikelihood = computeWeightedAverage(likelihoodRatings) || 0;
+  const avgSeverity = computeWeightedAverage(severityRatings) || 0;
+  const overallRisk = avgLikelihood * avgSeverity;
 
-    const avgLikelihood = computeWeightedAverage(likelihoodRatings) || 0;
-    const avgSeverity = computeWeightedAverage(severityRatings) || 0;
-
-    return avgLikelihood * avgSeverity;
+  // Determine which cell to highlight based on rounded average likelihood and severity.
+  const highlightedLikelihood = Math.min(5, Math.max(1, Math.round(avgLikelihood)));
+  const highlightedSeverity = Math.min(5, Math.max(1, Math.round(avgSeverity)));
+  const highlightCoordinates = {
+    likelihood: highlightedLikelihood,
+    severity: highlightedSeverity,
   };
 
-  const overallRisk = calculateOverallRisk();
-
-  // Export the risk matrix and spectrum as a PNG using html2canvas.
   const handleExportPNG = () => {
     if (!exportRef.current) return;
     html2canvas(exportRef.current).then((canvas) => {
@@ -322,7 +357,6 @@ const App = () => {
     });
   };
 
-  // Save assessment data (matter name, likelihood and severity risks) to localStorage.
   const saveAssessment = () => {
     if (!matterName) {
       alert("Please enter a matter name before saving.");
@@ -337,7 +371,6 @@ const App = () => {
     alert("Assessment saved!");
   };
 
-  // Load assessment data from localStorage.
   const loadAssessment = () => {
     if (!matterName) {
       alert("Please enter the matter name to load.");
@@ -392,8 +425,8 @@ const App = () => {
         </button>
       </div>
 
-      {/* Risk Factor Input Sections */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      {/* Stacked Risk Factor Input Sections */}
+      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <RiskInputSection
           type="Likelihood"
           categories={riskCategories.likelihood}
@@ -409,7 +442,7 @@ const App = () => {
       </div>
 
       {/* Display added risk factors */}
-      <div style={{ display: "flex", justifyContent: "space-around" }}>
+      <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap" }}>
         <RiskFactorsTable title="Likelihood" risks={likelihoodRisks} />
         <RiskFactorsTable title="Severity" risks={severityRisks} />
       </div>
@@ -424,7 +457,7 @@ const App = () => {
           borderRadius: "8px",
         }}
       >
-        <RiskMatrix />
+        <RiskMatrix highlightCoordinates={highlightCoordinates} />
         <RiskSpectrum overallRisk={overallRisk} />
         <div style={{ textAlign: "center", marginTop: "10px" }}>
           <strong>Overall Risk Score: {overallRisk.toFixed(2)}</strong>
