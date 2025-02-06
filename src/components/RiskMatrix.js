@@ -512,55 +512,60 @@ const RiskMatrix = ({ highlightCoordinates }) => {
   );
 };
 
-// Updated RiskSpectrum with adjusted dimensions and label positions.
 const RiskSpectrum = ({ overallRisk }) => {
   const sliderWidth = 520; // Match matrix grid width
   const position = ((overallRisk - 1) / (25 - 1)) * sliderWidth;
   const displayedScore = Math.round(overallRisk) || 0;
   const riskLabel = overallRisk > 0 ? getRiskLevelLabel(displayedScore) : "N/A";
 
+  // Define a container that provides enough vertical space for the slider, floating label, and bottom labels.
   const sliderContainerStyle = {
     width: sliderWidth,
     margin: "0 auto",
     position: "relative",
-    height: "40px", // Reduced height
+    height: "60px", // Increased height to allow bottom labels to be visible.
   };
 
-  const labelStyle = {
+  // Floating label that displays the current risk value above the slider.
+  const floatingLabelStyle = {
     position: "absolute",
-    left: position - 40,
-    top: -20, // Adjusted to avoid overlapping title
+    left: position - 40, // Centers the label on the indicator.
+    top: "0px", // Positioned at the top of the container.
     width: "80px",
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "14px",
   };
 
+  // The slider line.
   const sliderStyle = {
     position: "absolute",
-    bottom: "0",
+    top: "20px", // Slider starts 20px from the top.
     width: "100%",
-    height: "20px", // Reduced slider line height
+    height: "20px", // Height of the slider line.
     background:
       "linear-gradient(to right, #a8e6a3 0%, #d4f7a3 20%, #f7f7a3 50%, #f7d4a3 80%, #f7a8a8 100%)",
     borderRadius: "10px",
   };
 
+  // The indicator line now has a fixed, reduced height.
   const indicatorStyle = {
     position: "absolute",
     left: position - 1,
-    top: 0,
-    bottom: 0,
+    top: "22px", // Slightly offset from the slider's top.
     width: "2px",
+    height: "16px", // Reduced height so it doesn't bump into the labels.
     backgroundColor: "black",
   };
 
+  // The container for the labels below the slider.
   const labelContainerStyle = {
+    position: "absolute",
+    bottom: "0px",
+    left: "0",
+    right: "0",
     display: "flex",
     justifyContent: "space-between",
-    position: "absolute",
-    bottom: -20,
-    width: "100%",
     fontSize: "10px",
   };
 
@@ -568,7 +573,7 @@ const RiskSpectrum = ({ overallRisk }) => {
     <div className="risk-spectrum">
       <h3>Risk Spectrum</h3>
       <div style={sliderContainerStyle}>
-        <div style={labelStyle}>
+        <div style={floatingLabelStyle}>
           {riskLabel} ({displayedScore})
         </div>
         <div style={sliderStyle}></div>
