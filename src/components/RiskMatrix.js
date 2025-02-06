@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // --- Constants & Utility Functions ---
 
@@ -199,7 +201,7 @@ const RiskFactorsTable = ({ title, risks }) => {
   );
 };
 
-// Risk Matrix with wider cells and highlighting of the applicable cell.
+// Risk Matrix with wider cells and highlighted cell.
 const RiskMatrix = ({ highlightCoordinates }) => {
   const grid = [];
   for (let likelihood = 1; likelihood <= 5; likelihood++) {
@@ -274,7 +276,7 @@ const RiskMatrix = ({ highlightCoordinates }) => {
 
 // Updated Risk Spectrum with increased width, vertical line indicator, and label.
 const RiskSpectrum = ({ overallRisk }) => {
-  const sliderWidth = 700; // Increased width (75% wider than 400px)
+  const sliderWidth = 700; // 75% wider than 400px.
   // Map overall risk (range: 1-25) to a position on the slider.
   const position = ((overallRisk - 1) / (25 - 1)) * sliderWidth;
 
@@ -518,7 +520,7 @@ const App = () => {
       {markdownText && (
         <div style={{ marginTop: "20px" }}>
           <h3>Risk Factors (Markdown Export)</h3>
-          <pre
+          <div
             style={{
               backgroundColor: "#f4f4f4",
               padding: "10px",
@@ -526,8 +528,10 @@ const App = () => {
               overflowX: "auto",
             }}
           >
-            {markdownText}
-          </pre>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {markdownText}
+            </ReactMarkdown>
+          </div>
           <button
             onClick={copyMarkdownToClipboard}
             style={{
