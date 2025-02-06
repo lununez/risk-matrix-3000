@@ -1,198 +1,180 @@
-/* RiskMatrix.css */
-
-/* Main App Container */
+/* Global & Form Styling */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
 .app-container {
   max-width: 900px;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 20px;
   background-color: #f9f9f9;
   box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
-/* General Section Styling */
-.risk-input-section,
-.risk-factors-table,
-.risk-matrix,
-.risk-spectrum,
-.exportable-area {
+/* Headings */
+h2, h3, h4 {
+  text-align: center;
+}
+
+/* Input Sections */
+.risk-input-section {
   margin-bottom: 20px;
   padding: 15px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
-/* Input Fields */
-.custom-input {
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+.inline-group {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+.input-item {
+  flex: 1;
+}
+.custom-input,
+.custom-select,
+.custom-textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;
 }
-.custom-input:focus {
-  outline: none;
-  border-color: #5b9dd9;
-  box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
+.custom-textarea {
+  resize: vertical;
+}
+.help-text {
+  font-size: 12px;
+  color: #777;
+  margin-top: 4px;
 }
 
-/* Dropdown Menus */
-.custom-select {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 16px;
-  border: 1px solid #ccc;
+/* Custom Multi‑Select for Category (as tags) */
+.custom-select.multi-select {
+  height: auto;
+  /* For a more advanced tag UI you’d eventually convert this to a custom component */
+}
+.custom-select.multi-select option {
+  padding: 8px;
+}
+
+/* Custom Dropdown for Risk Rating */
+.custom-select.risk-rating-select {
+  background: linear-gradient(90deg, #4CAF50, #8BC34A, #FFEB3B, #FF9800, #F44336);
+  border: 1px solid #ddd;
   border-radius: 4px;
+  color: #000;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  transition: background 0.3s, box-shadow 0.3s;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: #fff;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  box-sizing: border-box;
+  padding: 8px;
+  position: relative;
 }
-.custom-select:focus {
+.custom-select.risk-rating-select:focus {
   outline: none;
-  border-color: #5b9dd9;
-  box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
-
-/* Button Styles */
-button {
-  padding: 10px 15px;
-  background-color: #5b9dd9;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-button:hover {
-  background-color: #4a8cc7;
-}
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Risk Factor Tables */
-.risk-factors-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.risk-factors-table th,
-.risk-factors-table td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
-.risk-factors-table th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+.custom-select.risk-rating-select option {
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: capitalize;
+  padding: 8px;
 }
 
 /* Risk Matrix */
-.risk-matrix .matrix-wrapper {
+.matrix-wrapper {
   display: flex;
-  align-items: flex-start;
+  justify-content: center; /* Center the matrix */
+  margin-top: 20px;
 }
-
-.risk-matrix .vertical-label {
+.vertical-label {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-weight: bold;
   margin-right: 10px;
-  align-self: center;
+  font-size: 16px;
+  white-space: nowrap;
 }
-
-.risk-matrix .matrix-content {
+.matrix-content {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.risk-matrix .horizontal-label {
+.horizontal-label {
   font-weight: bold;
   margin-bottom: 10px;
+  font-size: 16px;
 }
-
-/* 5x5 Grid */
-.risk-matrix .matrix-grid {
+.matrix-grid {
   display: grid;
   grid-template-columns: repeat(5, 100px);
   gap: 5px;
 }
-
-.risk-matrix .matrix-cell {
+.matrix-cell {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 60px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  transition: opacity 0.3s;
   box-sizing: border-box;
 }
-
-/* Risk Spectrum */
-.risk-spectrum {
+.cell-label {
+  font-size: 14px;
+  text-transform: capitalize;
+  text-align: center;
+}
+.cell-score {
+  font-size: 12px;
+  font-weight: bold;
   text-align: center;
 }
 
-.risk-spectrum .spectrum-bar {
-  width: 100%;
-  max-width: 520px;
-  height: 30px;
-  background: linear-gradient(to right, #a8e6a3, #f7a8a8);
-  border-radius: 10px;
-  margin: 20px auto 0;
-  position: relative;
+/* Spectrum Adjustments */
+.risk-spectrum {
+  text-align: center;
+  margin-top: 30px;
   overflow: hidden;
 }
-
-.risk-spectrum .spectrum-bar .indicator {
+.spectrum-bar {
+  width: 100%;
+  max-width: 520px;
+  height: 20px; /* reduced height */
+  background: linear-gradient(to right, #a8e6a3, #d4f7a3, #f7f7a3, #f7d4a3, #f7a8a8);
+  border-radius: 10px;
+  margin: 20px auto 10px;
+  position: relative;
+}
+.spectrum-bar .indicator {
   position: absolute;
-  top: -5px;
+  top: -2px;
   width: 2px;
-  height: 40px;
+  height: 24px;
   background-color: black;
 }
-
-.risk-spectrum .spectrum-bar .label {
+.spectrum-bar .label {
   position: absolute;
-  top: -30px;
+  top: -25px;
   left: 50%;
   transform: translateX(-50%);
   font-weight: bold;
   font-size: 14px;
-}
-
-/* Markdown Export */
-.markdown-export pre {
-  background-color: #f4f4f4;
-  padding: 15px;
-  border-radius: 4px;
-  overflow-x: auto;
-  font-family: Consolas, monospace;
-  font-size: 14px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .app-container {
-    padding: 10px;
-  }
-  .risk-matrix .matrix-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-  .custom-input,
-  .custom-select {
-    width: 100%;
-  }
 }
