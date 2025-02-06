@@ -415,7 +415,6 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   );
 };
 
-// RiskFactorsTable now shows the full rating string as a pill.
 const RiskFactorsTable = ({ title, risks }) => {
   return (
     <div className="risk-factors-table">
@@ -426,21 +425,25 @@ const RiskFactorsTable = ({ title, risks }) => {
         <table>
           <thead>
             <tr>
-              <th>Category</th>
-              <th>Explanation</th>
-              <th>Risk Rating</th>
+              <th className="category-cell">Category</th>
+              <th className="explanation-cell">Explanation</th>
+              <th className="risk-rating-cell">Risk Rating</th>
             </tr>
           </thead>
           <tbody>
             {risks.map((risk, idx) => (
               <tr key={idx}>
-                <td>
+                <td className="category-cell">
                   {Array.isArray(risk.categories)
-                    ? risk.categories.join(", ")
+                    ? risk.categories.map((cat, index) => (
+                        <span key={index} className="category-tag">
+                          {cat}
+                        </span>
+                      ))
                     : risk.category}
                 </td>
-                <td>{risk.explanation}</td>
-                <td style={{ textAlign: "center" }}>
+                <td className="explanation-cell">{risk.explanation}</td>
+                <td className="risk-rating-cell">
                   <span style={getRiskRatingStyle(risk.rating)}>
                     {risk.ratingLabel} ({risk.rating})
                   </span>
@@ -558,7 +561,7 @@ const RiskSpectrum = ({ overallRisk }) => {
     position: "absolute",
     bottom: -20,
     width: "100%",
-    fontSize: "12px",
+    fontSize: "10px",
   };
 
   return (
