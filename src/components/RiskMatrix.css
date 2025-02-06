@@ -178,3 +178,55 @@ h2, h3, h4 {
   font-weight: bold;
   font-size: 14px;
 }
+/* Risk Factors Table Styling */
+.risk-factors-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.risk-factors-table th,
+.risk-factors-table td {
+  padding: 8px;
+  text-align: left;
+  border-right: 1px solid #ccc; /* Light grey vertical dividing line */
+}
+
+.risk-factors-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.risk-factors-table tr {
+  border-bottom: 1px solid #666; /* Thin dark grey horizontal line between rows */
+}
+
+.risk-factors-table th:last-child,
+.risk-factors-table td:last-child {
+  border-right: none;
+}
+
+/* Fixed column widths */
+.risk-factors-table .category-cell {
+  width: 150px; /* Adjust as needed to fit your widest category option */
+}
+
+.risk-factors-table .explanation-cell {
+  width: auto;
+  min-width: 400px; /* Explanation column takes most of the space */
+}
+
+.risk-factors-table .risk-rating-cell {
+  width: 120px; /* Fixed width for risk rating (pill) */
+}
+
+/* Category tags styling to mimic the multi-select tags */
+.category-tag {
+  display: inline-block;
+  background-color: #e0e0e0;  /* Same background as your multi-select tag */
+  color: #fff;
+  border-radius: 2px;
+  padding: 2px 6px;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  font-size: 14px;
+}
