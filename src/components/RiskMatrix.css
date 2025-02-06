@@ -118,11 +118,13 @@ button:disabled {
   font-weight: bold;
 }
 
-/* Updated grid: using auto-fit for a responsive layout */
+/* Fixed five‑column grid: setting an explicit width to lock in the layout */
 .risk-matrix .matrix-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(5, 100px);
   gap: 5px;
+  width: calc(5 * 100px + 4 * 5px); /* 500px + 20px = 520px */
+  margin: 0 auto;
 }
 
 .risk-matrix .matrix-grid div {
@@ -139,10 +141,8 @@ button:disabled {
 /* Risk Spectrum */
 .risk-spectrum {
   text-align: center;
-  /* Removed position: relative; now the spectrum bar will handle positioning */
 }
 
-/* Updated spectrum bar: now serves as the relative container and hides overflow */
 .risk-spectrum .spectrum-bar {
   width: 100%;
   height: 30px;
@@ -150,10 +150,10 @@ button:disabled {
   border-radius: 10px;
   margin-top: 20px;
   position: relative;
-  overflow: hidden; /* Keeps child elements from spilling out */
+  overflow: hidden; /* Contain the indicator and label */
 }
 
-/* Indicator and label are now assumed to be inside the .spectrum-bar */
+/* Indicator and label placed inside the spectrum bar */
 .risk-spectrum .spectrum-bar .indicator {
   position: absolute;
   top: -5px;
@@ -165,7 +165,7 @@ button:disabled {
 .risk-spectrum .spectrum-bar .label {
   position: absolute;
   top: -30px;
-  left: 50%; /* Center horizontally within .spectrum-bar */
+  left: 50%; /* Center horizontally within the bar */
   transform: translateX(-50%);
   font-weight: bold;
   font-size: 14px;
@@ -187,9 +187,10 @@ button:disabled {
     padding: 10px;
   }
 
-  /* Adjust matrix grid for smaller screens */
+  /* For smaller screens, switch to a flexible grid so it doesn’t overflow */
   .risk-matrix .matrix-grid {
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
+    width: 100%;
   }
 
   .custom-input,
