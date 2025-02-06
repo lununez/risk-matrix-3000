@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import html2canvas from "html2canvas";
 import Select from "react-select";
-import "./RiskMatrix.css"; // Ensure this file contains your updated styling
+import "./RiskMatrix.css"; // Ensure your CSS is updated accordingly
 
 // --- Constants & Utility Functions ---
 
@@ -88,7 +88,6 @@ function generateMarkdownTable(likelihoodRisks, severityRisks) {
   const header = "| Type | Category | Explanation | Risk Rating |\n| --- | --- | --- | --- |\n";
   const rows = [];
   likelihoodRisks.forEach((risk) => {
-    // If risk.categories is an array, join them.
     const categoryText = Array.isArray(risk.categories) ? risk.categories.join(", ") : risk.category;
     rows.push(`| Likelihood | ${categoryText} | ${risk.explanation} | ${risk.ratingLabel} (${risk.rating}) |`);
   });
@@ -99,10 +98,72 @@ function generateMarkdownTable(likelihoodRisks, severityRisks) {
   return header + rows.join("\n");
 }
 
+// Utility to return the pill style for risk rating (used in table rendering)
+function getRiskRatingStyle(value) {
+  let backgroundColor = "#fff",
+    textColor = "#333",
+    borderColor = "#ccc";
+  switch (value) {
+    case 1:
+      backgroundColor = "#4CAF50";
+      textColor = "#FFFFFF";
+      borderColor = "#4CAF50";
+      break;
+    case 2:
+      backgroundColor = "#8BC34A";
+      textColor = "#FFFFFF";
+      borderColor = "#8BC34A";
+      break;
+    case 3:
+      backgroundColor = "#FFEB3B";
+      textColor = "#000000";
+      borderColor = "#FFEB3B";
+      break;
+    case 4:
+      backgroundColor = "#FF9800";
+      textColor = "#000000";
+      borderColor = "#FF9800";
+      break;
+    case 5:
+      backgroundColor = "#F44336";
+      textColor = "#FFFFFF";
+      borderColor = "#F44336";
+      break;
+    default:
+      break;
+  }
+  return {
+    backgroundColor,
+    color: textColor,
+    border: `1px solid ${borderColor}`,
+    borderRadius: "16px",
+    padding: "2px 8px",
+    fontWeight: "700",
+    fontSize: "14px",
+    display: "inline-block",
+  };
+}
+
 // --- Components ---
 
-// Updated RiskInputSection using react-select for a polished multi‑select and single‑select.
+// Updated RiskInputSection using react-select for polished multi‑select and single‑select fields.
 const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
+  // Map categories to include color for styling.
+  const categoryOptions = categories.map((cat) => {
+    let color;
+    if (cat === "Legal Requirements") color = "#E91E63";
+    else if (cat === "Prior Commitment") color = "#9C27B0";
+    else if (cat === "3rd Party Rights") color = "#3F51B5";
+    else if (cat === "Defensibility") color = "#00BCD4";
+    else if (cat === "Regulatory Interest") color = "#8BC34A";
+    else if (cat === "Regulatory Engagement") color = "#CDDC39";
+    else if (cat === "Enforcement History") color = "#FFC107";
+    else if (cat === "Discoverability") color = "#FF5722";
+    else if (cat === "Market Practices") color = "#795548";
+    else color = "#ccc";
+    return { value: cat, label: cat, color };
+  });
+
   // For Category, use react-select multi-select.
   const [selectedCategories, setSelectedCategories] = useState([
     { value: categories[0], label: categories[0] },
@@ -132,12 +193,6 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
     });
   }, [selectedCategories, effectiveRatingOptions]);
 
-  // Prepare options for react-select.
-  const categoryOptions = categories.map((cat) => ({
-    value: cat,
-    label: cat,
-    // Optionally add a color property here for custom styling.
-  }));
   const ratingSelectOptions = effectiveRatingOptions.map((opt) => ({
     value: opt.value,
     label: `${opt.label} (${opt.value})`,
@@ -154,9 +209,7 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
       borderRadius: "4px",
       border: "1px solid #ccc",
       boxShadow: state.isFocused ? "0 0 5px rgba(0,0,0,0.3)" : "none",
-      "&:hover": {
-        border: "1px solid #aaa",
-      },
+      "&:hover": { border: "1px solid #aaa" },
       fontSize: "16px",
     }),
     multiValue: (provided, state) => ({
@@ -172,10 +225,7 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
     multiValueRemove: (provided) => ({
       ...provided,
       color: "#fff",
-      ":hover": {
-        backgroundColor: "#ccc",
-        color: "#222",
-      },
+      ":hover": { backgroundColor: "#ccc", color: "#222" },
     }),
     option: (provided, state) => ({
       ...provided,
@@ -205,42 +255,80 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
       borderRadius: "4px",
       border: "1px solid #ccc",
       boxShadow: state.isFocused ? "0 0 5px rgba(0,0,0,0.3)" : "none",
-      "&:hover": {
-        border: "1px solid #aaa",
-      },
+      "&:hover": { border: "1px solid #aaa" },
       fontSize: "16px",
       padding: "2px",
     }),
-    singleValue: (provided) => ({
-      ...provided,
-      fontSize: "16px",
-      fontWeight: 700,
-      color: "#000",
-    }),
+    singleValue: (provided, state) => {
+      // Customize the pill appearance based on the rating value.
+      let backgroundColor = "#fff",
+        textColor = "#333",
+        borderColor = "#ccc";
+      switch (state.data.value) {
+        case 1:
+          backgroundColor = "#4CAF50";
+          textColor = "#fff";
+          borderColor = "#4CAF50";
+          break;
+        case 2:
+          backgroundColor = "#8BC34A";
+          textColor = "#fff";
+          borderColor = "#8BC34A";
+          break;
+        case 3:
+          backgroundColor = "#FFEB3B";
+          textColor = "#000";
+          borderColor = "#FFEB3B";
+          break;
+        case 4:
+          backgroundColor = "#FF9800";
+          textColor = "#000";
+          borderColor = "#FF9800";
+          break;
+        case 5:
+          backgroundColor = "#F44336";
+          textColor = "#fff";
+          borderColor = "#F44336";
+          break;
+        default:
+          break;
+      }
+      return {
+        ...provided,
+        fontSize: "16px",
+        fontWeight: 700,
+        color: textColor,
+        backgroundColor,
+        border: `1px solid ${borderColor}`,
+        borderRadius: "16px",
+        padding: "2px 8px",
+        display: "inline-block",
+      };
+    },
     option: (provided, state) => {
       let backgroundColor = "#fff";
       let textColor = "#333";
       if (state.isSelected) {
         switch (state.data.value) {
-          case 1: // Rare
+          case 1:
             backgroundColor = "#4CAF50";
-            textColor = "#FFFFFF";
+            textColor = "#fff";
             break;
-          case 2: // Unlikely
+          case 2:
             backgroundColor = "#8BC34A";
-            textColor = "#FFFFFF";
+            textColor = "#fff";
             break;
-          case 3: // Possible
+          case 3:
             backgroundColor = "#FFEB3B";
-            textColor = "#000000";
+            textColor = "#000";
             break;
-          case 4: // Likely
+          case 4:
             backgroundColor = "#FF9800";
-            textColor = "#000000";
+            textColor = "#000";
             break;
-          case 5: // Almost Certain
+          case 5:
             backgroundColor = "#F44336";
-            textColor = "#FFFFFF";
+            textColor = "#fff";
             break;
           default:
             backgroundColor = "#fff";
@@ -271,7 +359,6 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
       categories: selectedCategories.map((opt) => opt.value),
       explanation,
       rating: selectedRating.value,
-      // Extract the label without the numeric value in parentheses.
       ratingLabel: selectedRating.label.split(" ")[0],
     };
     onAddRisk(riskData);
@@ -328,7 +415,7 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   );
 };
 
-// RiskFactorsTable now shows the full rating string.
+// RiskFactorsTable now shows the full rating string as a pill.
 const RiskFactorsTable = ({ title, risks }) => {
   return (
     <div className="risk-factors-table">
@@ -354,7 +441,9 @@ const RiskFactorsTable = ({ title, risks }) => {
                 </td>
                 <td>{risk.explanation}</td>
                 <td style={{ textAlign: "center" }}>
-                  {risk.ratingLabel} ({risk.rating})
+                  <span style={getRiskRatingStyle(risk.rating)}>
+                    {risk.ratingLabel} ({risk.rating})
+                  </span>
                 </td>
               </tr>
             ))}
