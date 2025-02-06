@@ -1,13 +1,37 @@
 /* RiskMatrix.css */
 
-/* Customize text input fields */
+/* Main App Container */
+.app-container {
+  max-width: 900px;       /* Controls the overall width */
+  margin: 0 auto;         /* Centers the container horizontally */
+  padding: 20px;          /* Adds padding around the content */
+  background-color: #f9f9f9;  /* Light background for contrast */
+  box-sizing: border-box;
+}
+
+/* General Section Styling */
+.risk-input-section,
+.risk-factors-table,
+.risk-matrix,
+.risk-spectrum,
+.exportable-area {
+  margin-bottom: 20px;    /* Adds spacing between sections */
+  padding: 15px;
+  background-color: #fff; /* White background for each section */
+  border-radius: 8px;     /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  box-sizing: border-box;
+}
+
+/* Input Fields */
 .custom-input {
-  width: 300px;            /* Adjust width as needed */
+  width: 100%;            /* Full width of container */
   padding: 10px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
 .custom-input:focus {
@@ -16,23 +40,23 @@
   box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
 }
 
-/* Customize select (dropdown) elements */
+/* Dropdown Menus */
 .custom-select {
-  width: 320px;            /* Slightly wider than the input field */
+  width: 100%;            /* Full width */
   padding: 10px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  appearance: none;        /* Remove default arrow */
+  appearance: none;       /* Remove default styles */
   -webkit-appearance: none;
   -moz-appearance: none;
   background-color: #fff;
-  /* Custom arrow icon as inline SVG in data URI */
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='10' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23666'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 10px;
+  background-position: right 12px center;
+  background-size: 12px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
 .custom-select:focus {
@@ -41,11 +65,129 @@
   box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
 }
 
-/* Option styling (note: support varies by browser) */
-.custom-select option {
-  font-size: 16px;
-  color: #333;
-  padding: 8px;
+/* Button Styles */
+button {
+  padding: 10px 15px;
+  background-color: #5b9dd9;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Example: You can add additional styles for hover/focus on options using JavaScript if needed */
+button:hover {
+  background-color: #4a8cc7;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Risk Factor Tables */
+.risk-factors-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.risk-factors-table th,
+.risk-factors-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.risk-factors-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* Risk Matrix */
+.risk-matrix .matrix-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.risk-matrix .vertical-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.risk-matrix .matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 100px);
+  gap: 5px;
+}
+
+.risk-matrix .matrix-grid div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: opacity 0.3s;
+  box-sizing: border-box;
+}
+
+/* Risk Spectrum */
+.risk-spectrum {
+  text-align: center;
+  position: relative;
+}
+
+.risk-spectrum .spectrum-bar {
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(to right, #a8e6a3, #f7a8a8);
+  border-radius: 10px;
+  margin-top: 20px;
+  position: relative;
+}
+
+.risk-spectrum .indicator {
+  position: absolute;
+  top: -5px;
+  width: 2px;
+  height: 40px;
+  background-color: black;
+}
+
+.risk-spectrum .label {
+  position: absolute;
+  top: -30px;
+  transform: translateX(-50%);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Markdown Export */
+.markdown-export pre {
+  background-color: #f4f4f4;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: Consolas, monospace;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .risk-matrix .matrix-grid {
+    grid-template-columns: repeat(5, 60px);
+  }
+
+  .custom-input,
+  .custom-select {
+    width: 100%;
+  }
+}
