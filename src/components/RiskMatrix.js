@@ -1,7 +1,5 @@
 import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 // --- Constants & Utility Functions ---
 
@@ -63,8 +61,8 @@ function getCellColor(score) {
 }
 
 /*
-  A simple weighted average: it takes the arithmetic mean and then adds
-  25% of the gap between the max and the mean.
+  A simple weighted average: takes the arithmetic mean and then adds
+  25% of the difference between the maximum rating and the mean.
 */
 function computeWeightedAverage(ratings) {
   if (ratings.length === 0) return 0;
@@ -77,10 +75,10 @@ function computeWeightedAverage(ratings) {
 function generateMarkdownTable(likelihoodRisks, severityRisks) {
   const header = "| Type | Category | Explanation | Rating |\n| --- | --- | --- | --- |\n";
   const rows = [];
-  likelihoodRisks.forEach(risk => {
+  likelihoodRisks.forEach((risk) => {
     rows.push(`| Likelihood | ${risk.category} | ${risk.explanation} | ${risk.rating} |`);
   });
-  severityRisks.forEach(risk => {
+  severityRisks.forEach((risk) => {
     rows.push(`| Severity | ${risk.category} | ${risk.explanation} | ${risk.rating} |`);
   });
   return header + rows.join("\n");
@@ -221,7 +219,6 @@ const RiskMatrix = ({ highlightCoordinates }) => {
   // Reverse rows so that the lowest likelihood appears at the bottom.
   grid.reverse();
 
-  // Increased cell width from 80px to 100px.
   const cellStyle = {
     width: "100px",
     height: "60px",
@@ -276,10 +273,8 @@ const RiskMatrix = ({ highlightCoordinates }) => {
 
 // Updated Risk Spectrum with increased width, vertical line indicator, and label.
 const RiskSpectrum = ({ overallRisk }) => {
-  const sliderWidth = 700; // 75% wider than 400px.
-  // Map overall risk (range: 1-25) to a position on the slider.
+  const sliderWidth = 700; // Increased width.
   const position = ((overallRisk - 1) / (25 - 1)) * sliderWidth;
-
   const displayedScore = Math.round(overallRisk) || 0;
   const riskLabel = overallRisk > 0 ? getRiskLevelLabel(displayedScore) : "N/A";
 
@@ -302,7 +297,7 @@ const RiskSpectrum = ({ overallRisk }) => {
 
   const indicatorStyle = {
     position: "absolute",
-    left: position - 1, // centered line (2px wide)
+    left: position - 1,
     top: 0,
     bottom: 0,
     width: "2px",
@@ -368,7 +363,6 @@ const App = () => {
   const avgSeverity = computeWeightedAverage(severityRatings) || 0;
   const overallRisk = avgLikelihood * avgSeverity;
 
-  // Determine the cell to highlight based on rounded average values.
   const highlightedLikelihood = Math.min(5, Math.max(1, Math.round(avgLikelihood)));
   const highlightedSeverity = Math.min(5, Math.max(1, Math.round(avgSeverity)));
   const highlightCoordinates = {
@@ -520,7 +514,7 @@ const App = () => {
       {markdownText && (
         <div style={{ marginTop: "20px" }}>
           <h3>Risk Factors (Markdown Export)</h3>
-          <div
+          <pre
             style={{
               backgroundColor: "#f4f4f4",
               padding: "10px",
@@ -528,10 +522,8 @@ const App = () => {
               overflowX: "auto",
             }}
           >
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {markdownText}
-            </ReactMarkdown>
-          </div>
+            {markdownText}
+          </pre>
           <button
             onClick={copyMarkdownToClipboard}
             style={{
