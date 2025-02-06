@@ -518,47 +518,48 @@ const RiskSpectrum = ({ overallRisk }) => {
   const displayedScore = Math.round(overallRisk) || 0;
   const riskLabel = overallRisk > 0 ? getRiskLevelLabel(displayedScore) : "N/A";
 
-  // Define a container that provides enough vertical space for the slider, floating label, and bottom labels.
+  // Increase container height and allow overflow
   const sliderContainerStyle = {
     width: sliderWidth,
     margin: "0 auto",
     position: "relative",
-    height: "60px", // Increased height to allow bottom labels to be visible.
+    height: "80px", // Increased height to ensure bottom labels show
+    overflow: "visible", // Prevent clipping of bottom labels
   };
 
-  // Floating label that displays the current risk value above the slider.
+  // Floating label (current risk) positioned at the top
   const floatingLabelStyle = {
     position: "absolute",
-    left: position - 40, // Centers the label on the indicator.
-    top: "0px", // Positioned at the top of the container.
+    left: position - 40, // Centers the label over the indicator
+    top: "0px",
     width: "80px",
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "14px",
   };
 
-  // The slider line.
+  // The slider line, now positioned a bit lower
   const sliderStyle = {
     position: "absolute",
-    top: "20px", // Slider starts 20px from the top.
+    top: "30px", // Position the slider line so there's room above and below
     width: "100%",
-    height: "20px", // Height of the slider line.
+    height: "20px",
     background:
       "linear-gradient(to right, #a8e6a3 0%, #d4f7a3 20%, #f7f7a3 50%, #f7d4a3 80%, #f7a8a8 100%)",
     borderRadius: "10px",
   };
 
-  // The indicator line now has a fixed, reduced height.
+  // Indicator line with reduced height so it doesn't bump into labels
   const indicatorStyle = {
     position: "absolute",
     left: position - 1,
-    top: "22px", // Slightly offset from the slider's top.
+    top: "32px", // Slightly offset within the slider line
     width: "2px",
-    height: "16px", // Reduced height so it doesn't bump into the labels.
+    height: "12px", // Reduced height
     backgroundColor: "black",
   };
 
-  // The container for the labels below the slider.
+  // Container for the bottom labels
   const labelContainerStyle = {
     position: "absolute",
     bottom: "0px",
@@ -566,7 +567,8 @@ const RiskSpectrum = ({ overallRisk }) => {
     right: "0",
     display: "flex",
     justifyContent: "space-between",
-    fontSize: "10px",
+    fontSize: "12px",
+    overflow: "visible",
   };
 
   return (
