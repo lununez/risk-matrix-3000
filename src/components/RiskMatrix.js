@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import html2canvas from "html2canvas";
 import Select from "react-select";
-import "./RiskMatrix.css"; // Ensure this file contains your styling (updated below as needed)
+import "./RiskMatrix.css"; // Ensure this file contains your updated styling
 
 // --- Constants & Utility Functions ---
 
@@ -101,7 +101,7 @@ function generateMarkdownTable(likelihoodRisks, severityRisks) {
 
 // --- Components ---
 
-// Updated RiskInputSection using react-select for polished multi‑select and single‑select fields.
+// Updated RiskInputSection using react-select for a polished multi‑select and single‑select.
 const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   // For Category, use react-select multi-select.
   const [selectedCategories, setSelectedCategories] = useState([
@@ -136,13 +136,14 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
   const categoryOptions = categories.map((cat) => ({
     value: cat,
     label: cat,
+    // Optionally add a color property here for custom styling.
   }));
   const ratingSelectOptions = effectiveRatingOptions.map((opt) => ({
     value: opt.value,
     label: `${opt.label} (${opt.value})`,
   }));
 
-  // Custom react-select styles (adjust these as needed).
+  // Custom react-select styles for multi-select.
   const customStylesMulti = {
     container: (provided) => ({
       ...provided,
@@ -158,19 +159,19 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
       },
       fontSize: "16px",
     }),
-    multiValue: (provided) => ({
+    multiValue: (provided, state) => ({
       ...provided,
-      backgroundColor: "#e0e0e0",
+      backgroundColor: state.data.color || "#e0e0e0",
       borderRadius: "2px",
     }),
     multiValueLabel: (provided) => ({
       ...provided,
-      color: "#333",
+      color: "#fff",
       fontSize: "14px",
     }),
     multiValueRemove: (provided) => ({
       ...provided,
-      color: "#666",
+      color: "#fff",
       ":hover": {
         backgroundColor: "#ccc",
         color: "#222",
@@ -179,18 +180,21 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
     option: (provided, state) => ({
       ...provided,
       fontSize: "14px",
-      color: state.isSelected ? "#fff" : "#333",
+      color: state.data.color ? "#fff" : "#333",
       backgroundColor: state.isSelected
-        ? "#4CAF50"
+        ? state.data.color || "#4CAF50"
         : state.isFocused
         ? "#f0f0f0"
         : "#fff",
       ":hover": {
-        backgroundColor: "#ddd",
+        backgroundColor: state.isSelected
+          ? state.data.color || "#4CAF50"
+          : "#ddd",
       },
     }),
   };
 
+  // Custom react-select styles for single-select.
   const customStylesSingle = {
     container: (provided) => ({
       ...provided,
@@ -205,6 +209,7 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
         border: "1px solid #aaa",
       },
       fontSize: "16px",
+      padding: "2px",
     }),
     singleValue: (provided) => ({
       ...provided,
@@ -212,19 +217,49 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
       fontWeight: 700,
       color: "#000",
     }),
-    option: (provided, state) => ({
-      ...provided,
-      fontSize: "14px",
-      color: state.isSelected ? "#fff" : "#333",
-      backgroundColor: state.isSelected
-        ? "#4CAF50"
-        : state.isFocused
-        ? "#f0f0f0"
-        : "#fff",
-      ":hover": {
-        backgroundColor: "#ddd",
-      },
-    }),
+    option: (provided, state) => {
+      let backgroundColor = "#fff";
+      let textColor = "#333";
+      if (state.isSelected) {
+        switch (state.data.value) {
+          case 1: // Rare
+            backgroundColor = "#4CAF50";
+            textColor = "#FFFFFF";
+            break;
+          case 2: // Unlikely
+            backgroundColor = "#8BC34A";
+            textColor = "#FFFFFF";
+            break;
+          case 3: // Possible
+            backgroundColor = "#FFEB3B";
+            textColor = "#000000";
+            break;
+          case 4: // Likely
+            backgroundColor = "#FF9800";
+            textColor = "#000000";
+            break;
+          case 5: // Almost Certain
+            backgroundColor = "#F44336";
+            textColor = "#FFFFFF";
+            break;
+          default:
+            backgroundColor = "#fff";
+            textColor = "#333";
+        }
+      } else if (state.isFocused) {
+        backgroundColor = "#f0f0f0";
+      }
+      return {
+        ...provided,
+        fontSize: "14px",
+        color: textColor,
+        backgroundColor,
+        transition: "background-color 0.2s ease",
+        ":hover": {
+          backgroundColor: state.isSelected ? backgroundColor : "#ddd",
+        },
+      };
+    },
   };
 
   const handleSave = () => {
@@ -236,7 +271,8 @@ const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
       categories: selectedCategories.map((opt) => opt.value),
       explanation,
       rating: selectedRating.value,
-      ratingLabel: selectedRating.label.split(" ")[0], // Extract the label (e.g., "Rare")
+      // Extract the label without the numeric value in parentheses.
+      ratingLabel: selectedRating.label.split(" ")[0],
     };
     onAddRisk(riskData);
     setExplanation("");
