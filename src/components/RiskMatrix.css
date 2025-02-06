@@ -19,7 +19,7 @@
   padding: 15px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
 
@@ -36,7 +36,7 @@
 .custom-input:focus {
   outline: none;
   border-color: #5b9dd9;
-  box-shadow: 0 0 5px rgba(91,157,217,0.5);
+  box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
 }
 
 /* Dropdown Menus */
@@ -60,7 +60,7 @@
 .custom-select:focus {
   outline: none;
   border-color: #5b9dd9;
-  box-shadow: 0 0 5px rgba(91,157,217,0.5);
+  box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
 }
 
 /* Button Styles */
@@ -72,7 +72,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 button:hover {
   background-color: #4a8cc7;
@@ -99,26 +99,35 @@ button:disabled {
 }
 
 /* Risk Matrix */
-.risk-matrix .matrix-container {
+.risk-matrix .matrix-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .risk-matrix .vertical-label {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  margin-bottom: 10px;
   font-weight: bold;
+  margin-right: 10px;
+  align-self: center;
 }
 
-/* Fixed five‑column grid */
+.risk-matrix .matrix-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.risk-matrix .horizontal-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* 5x5 Grid */
 .risk-matrix .matrix-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 100px);
   gap: 5px;
-  /* Ensure the grid doesn’t exceed the width we expect (5 * 100px + 4 * 5px = 520px) */
-  width: 520px;
 }
 
 .risk-matrix .matrix-cell {
@@ -179,9 +188,7 @@ button:disabled {
   .app-container {
     padding: 10px;
   }
-  /* For smaller screens, let the grid use full width (but maintain 5 columns) */
   .risk-matrix .matrix-grid {
-    width: 100%;
     grid-template-columns: repeat(5, 1fr);
   }
   .custom-input,
