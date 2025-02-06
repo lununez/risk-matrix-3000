@@ -273,7 +273,6 @@ const RiskMatrix = ({ highlightCoordinates }) => {
   );
 };
 
-export default RiskMatrix;
 
 // RiskSpectrum with adjusted spacing so the label doesn't overlap.
 const RiskSpectrum = ({ overallRisk }) => {
