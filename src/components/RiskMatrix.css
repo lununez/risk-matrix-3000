@@ -1,0 +1,51 @@
+/* RiskMatrix.css */
+
+/* Customize text input fields */
+.custom-input {
+  width: 300px;            /* Adjust width as needed */
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-input:focus {
+  outline: none;
+  border-color: #5b9dd9;
+  box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
+}
+
+/* Customize select (dropdown) elements */
+.custom-select {
+  width: 320px;            /* Slightly wider than the input field */
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  appearance: none;        /* Remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  /* Custom arrow icon as inline SVG in data URI */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='10' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: #5b9dd9;
+  box-shadow: 0 0 5px rgba(91, 157, 217, 0.5);
+}
+
+/* Option styling (note: support varies by browser) */
+.custom-select option {
+  font-size: 16px;
+  color: #333;
+  padding: 8px;
+}
+
+/* Example: You can add additional styles for hover/focus on options using JavaScript if needed */
