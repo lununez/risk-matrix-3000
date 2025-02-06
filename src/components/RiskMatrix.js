@@ -1,7 +1,8 @@
 // RiskMatrix.js
 import React, { useState, useEffect, useRef } from "react";
 import html2canvas from "html2canvas";
-import "./RiskMatrix.css"; // Make sure this file is in the same directory
+import Select from "react-select";
+import "./RiskMatrix.css"; // Ensure this file contains your styling (updated below as needed)
 
 // --- Constants & Utility Functions ---
 
@@ -87,7 +88,7 @@ function generateMarkdownTable(likelihoodRisks, severityRisks) {
   const header = "| Type | Category | Explanation | Risk Rating |\n| --- | --- | --- | --- |\n";
   const rows = [];
   likelihoodRisks.forEach((risk) => {
-    // If risk.categories is an array, join them by commas.
+    // If risk.categories is an array, join them.
     const categoryText = Array.isArray(risk.categories) ? risk.categories.join(", ") : risk.category;
     rows.push(`| Likelihood | ${categoryText} | ${risk.explanation} | ${risk.ratingLabel} (${risk.rating}) |`);
   });
@@ -100,82 +101,178 @@ function generateMarkdownTable(likelihoodRisks, severityRisks) {
 
 // --- Components ---
 
-// Updated RiskInputSection Component with inline dropdowns, multi-select for category, and textarea for explanation.
+// Updated RiskInputSection using react-select for polished multi‑select and single‑select fields.
 const RiskInputSection = ({ type, categories, ratingOptions, onAddRisk }) => {
-  // Use multi-select for category; store as array.
-  const [selectedCategories, setSelectedCategories] = useState([categories[0]]);
+  // For Category, use react-select multi-select.
+  const [selectedCategories, setSelectedCategories] = useState([
+    { value: categories[0], label: categories[0] },
+  ]);
+  // For Risk Rating, use react-select single-select.
+  const [selectedRating, setSelectedRating] = useState({
+    value: ratingOptions.likelihood[0].value,
+    label: `${ratingOptions.likelihood[0].label} (${ratingOptions.likelihood[0].value})`,
+  });
+  const [explanation, setExplanation] = useState("");
+
   // Determine effective rating options.
   const effectiveRatingOptions =
-    type === "Likelihood" && selectedCategories.includes("Defensibility")
+    type === "Likelihood" &&
+    selectedCategories.some((opt) => opt.value === "Defensibility")
       ? defensibilityRatingOptions
       : type === "Likelihood"
       ? ratingOptions.likelihood
       : ratingOptions.severity;
 
-  const [explanation, setExplanation] = useState("");
-  const [selectedRating, setSelectedRating] = useState(effectiveRatingOptions[0].value);
-
-  // Update rating options if selectedCategories changes.
+  // Update rating select when effective options change.
   useEffect(() => {
-    setSelectedRating(effectiveRatingOptions[0].value);
+    const defaultOption = effectiveRatingOptions[0];
+    setSelectedRating({
+      value: defaultOption.value,
+      label: `${defaultOption.label} (${defaultOption.value})`,
+    });
   }, [selectedCategories, effectiveRatingOptions]);
+
+  // Prepare options for react-select.
+  const categoryOptions = categories.map((cat) => ({
+    value: cat,
+    label: cat,
+  }));
+  const ratingSelectOptions = effectiveRatingOptions.map((opt) => ({
+    value: opt.value,
+    label: `${opt.label} (${opt.value})`,
+  }));
+
+  // Custom react-select styles (adjust these as needed).
+  const customStylesMulti = {
+    container: (provided) => ({
+      ...provided,
+      width: "100%",
+    }),
+    control: (provided, state) => ({
+      ...provided,
+      borderRadius: "4px",
+      border: "1px solid #ccc",
+      boxShadow: state.isFocused ? "0 0 5px rgba(0,0,0,0.3)" : "none",
+      "&:hover": {
+        border: "1px solid #aaa",
+      },
+      fontSize: "16px",
+    }),
+    multiValue: (provided) => ({
+      ...provided,
+      backgroundColor: "#e0e0e0",
+      borderRadius: "2px",
+    }),
+    multiValueLabel: (provided) => ({
+      ...provided,
+      color: "#333",
+      fontSize: "14px",
+    }),
+    multiValueRemove: (provided) => ({
+      ...provided,
+      color: "#666",
+      ":hover": {
+        backgroundColor: "#ccc",
+        color: "#222",
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      fontSize: "14px",
+      color: state.isSelected ? "#fff" : "#333",
+      backgroundColor: state.isSelected
+        ? "#4CAF50"
+        : state.isFocused
+        ? "#f0f0f0"
+        : "#fff",
+      ":hover": {
+        backgroundColor: "#ddd",
+      },
+    }),
+  };
+
+  const customStylesSingle = {
+    container: (provided) => ({
+      ...provided,
+      width: "100%",
+    }),
+    control: (provided, state) => ({
+      ...provided,
+      borderRadius: "4px",
+      border: "1px solid #ccc",
+      boxShadow: state.isFocused ? "0 0 5px rgba(0,0,0,0.3)" : "none",
+      "&:hover": {
+        border: "1px solid #aaa",
+      },
+      fontSize: "16px",
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      fontSize: "16px",
+      fontWeight: 700,
+      color: "#000",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      fontSize: "14px",
+      color: state.isSelected ? "#fff" : "#333",
+      backgroundColor: state.isSelected
+        ? "#4CAF50"
+        : state.isFocused
+        ? "#f0f0f0"
+        : "#fff",
+      ":hover": {
+        backgroundColor: "#ddd",
+      },
+    }),
+  };
 
   const handleSave = () => {
     if (!explanation.trim()) {
       alert("Please enter an explanation.");
       return;
     }
-    const chosenOption = effectiveRatingOptions.find((opt) => opt.value === Number(selectedRating));
     const riskData = {
-      // Save as an array of tags.
-      categories: selectedCategories,
+      categories: selectedCategories.map((opt) => opt.value),
       explanation,
-      rating: Number(selectedRating),
-      ratingLabel: chosenOption.label,
+      rating: selectedRating.value,
+      ratingLabel: selectedRating.label.split(" ")[0], // Extract the label (e.g., "Rare")
     };
     onAddRisk(riskData);
     setExplanation("");
-    setSelectedCategories([categories[0]]);
-    setSelectedRating(effectiveRatingOptions[0].value);
+    setSelectedCategories([{ value: categories[0], label: categories[0] }]);
+    const defaultOption = effectiveRatingOptions[0];
+    setSelectedRating({
+      value: defaultOption.value,
+      label: `${defaultOption.label} (${defaultOption.value})`,
+    });
   };
 
   return (
     <div className="risk-input-section">
       <h3>{type}</h3>
-      <div className="input-group inline-group">
+      <div className="inline-group">
         <div className="input-item">
           <label>Category:</label>
-          <select
-            className="custom-select multi-select"
-            multiple
+          <Select
+            isMulti
+            options={categoryOptions}
             value={selectedCategories}
-            onChange={(e) =>
-              setSelectedCategories(
-                Array.from(e.target.selectedOptions, (option) => option.value)
-              )
-            }
-          >
-            {categories.map((cat, idx) => (
-              <option key={idx} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          <small className="help-text">[Enter help text for each category here...]</small>
+            onChange={setSelectedCategories}
+            styles={customStylesMulti}
+            placeholder="Select categories..."
+          />
+          <small className="help-text">[Enter help text for category]</small>
         </div>
         <div className="input-item">
           <label>Risk Rating:</label>
-          <select
-            className="custom-select risk-rating-select"
+          <Select
+            options={ratingSelectOptions}
             value={selectedRating}
-            onChange={(e) => setSelectedRating(e.target.value)}
-          >
-            {effectiveRatingOptions.map((opt, idx) => (
-              <option key={idx} value={opt.value}>
-                {opt.label} ({opt.value})
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedRating}
+            styles={customStylesSingle}
+            placeholder="Select a rating..."
+          />
         </div>
       </div>
       <div className="input-group">
@@ -214,7 +311,11 @@ const RiskFactorsTable = ({ title, risks }) => {
           <tbody>
             {risks.map((risk, idx) => (
               <tr key={idx}>
-                <td>{Array.isArray(risk.categories) ? risk.categories.join(", ") : risk.category}</td>
+                <td>
+                  {Array.isArray(risk.categories)
+                    ? risk.categories.join(", ")
+                    : risk.category}
+                </td>
                 <td>{risk.explanation}</td>
                 <td style={{ textAlign: "center" }}>
                   {risk.ratingLabel} ({risk.rating})
@@ -228,7 +329,7 @@ const RiskFactorsTable = ({ title, risks }) => {
   );
 };
 
-// Updated RiskMatrix: Centered and with formatted cell content.
+// Updated RiskMatrix: centered with formatted cell content.
 const RiskMatrix = ({ highlightCoordinates }) => {
   const grid = [];
   for (let likelihood = 1; likelihood <= 5; likelihood++) {
@@ -247,8 +348,6 @@ const RiskMatrix = ({ highlightCoordinates }) => {
   }
   // Reverse rows so that the lowest likelihood appears at the bottom.
   grid.reverse();
-
-  // Flatten the grid array so CSS grid can handle the layout.
   const cells = grid.flat();
 
   return (
@@ -287,7 +386,7 @@ const RiskMatrix = ({ highlightCoordinates }) => {
 
 // Updated RiskSpectrum with adjusted dimensions and label positions.
 const RiskSpectrum = ({ overallRisk }) => {
-  const sliderWidth = 520; // Adjusted to match matrix grid width
+  const sliderWidth = 520; // Match matrix grid width
   const position = ((overallRisk - 1) / (25 - 1)) * sliderWidth;
   const displayedScore = Math.round(overallRisk) || 0;
   const riskLabel = overallRisk > 0 ? getRiskLevelLabel(displayedScore) : "N/A";
@@ -296,13 +395,13 @@ const RiskSpectrum = ({ overallRisk }) => {
     width: sliderWidth,
     margin: "0 auto",
     position: "relative",
-    height: "40px", // reduced height
+    height: "40px", // Reduced height
   };
 
   const labelStyle = {
     position: "absolute",
     left: position - 40,
-    top: -20, // adjusted to avoid overlap with the title
+    top: -20, // Adjusted to avoid overlapping title
     width: "80px",
     textAlign: "center",
     fontWeight: "bold",
@@ -313,7 +412,7 @@ const RiskSpectrum = ({ overallRisk }) => {
     position: "absolute",
     bottom: "0",
     width: "100%",
-    height: "20px", // reduced height for slider line
+    height: "20px", // Reduced slider line height
     background:
       "linear-gradient(to right, #a8e6a3 0%, #d4f7a3 20%, #f7f7a3 50%, #f7d4a3 80%, #f7a8a8 100%)",
     borderRadius: "10px",
