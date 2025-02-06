@@ -61,8 +61,8 @@ function getCellColor(score) {
 }
 
 /*
-  A simple weighted average:
-  It takes the arithmetic mean and then bumps it upward by 25% of the gap between the max and the mean.
+  A simple weighted average: it takes the arithmetic mean and then adds
+  25% of the gap between the max and the mean.
 */
 function computeWeightedAverage(ratings) {
   if (ratings.length === 0) return 0;
@@ -70,6 +70,18 @@ function computeWeightedAverage(ratings) {
   const mean = sum / ratings.length;
   const max = Math.max(...ratings);
   return mean + 0.25 * (max - mean);
+}
+
+function generateMarkdownTable(likelihoodRisks, severityRisks) {
+  const header = "| Type | Category | Explanation | Rating |\n| --- | --- | --- | --- |\n";
+  const rows = [];
+  likelihoodRisks.forEach(risk => {
+    rows.push(`| Likelihood | ${risk.category} | ${risk.explanation} | ${risk.rating} |`);
+  });
+  severityRisks.forEach(risk => {
+    rows.push(`| Severity | ${risk.category} | ${risk.explanation} | ${risk.rating} |`);
+  });
+  return header + rows.join("\n");
 }
 
 // --- Components ---
@@ -187,7 +199,7 @@ const RiskFactorsTable = ({ title, risks }) => {
   );
 };
 
-// Risk Matrix now accepts highlightCoordinates to show the applicable cell.
+// Risk Matrix with wider cells and highlighting of the applicable cell.
 const RiskMatrix = ({ highlightCoordinates }) => {
   const grid = [];
   for (let likelihood = 1; likelihood <= 5; likelihood++) {
@@ -204,11 +216,12 @@ const RiskMatrix = ({ highlightCoordinates }) => {
     }
     grid.push(row);
   }
-  // Reverse rows so that the lowest likelihood is at the bottom.
+  // Reverse rows so that the lowest likelihood appears at the bottom.
   grid.reverse();
 
+  // Increased cell width from 80px to 100px.
   const cellStyle = {
-    width: "80px",
+    width: "100px",
     height: "60px",
     border: "1px solid #ccc",
     display: "flex",
@@ -223,7 +236,6 @@ const RiskMatrix = ({ highlightCoordinates }) => {
     <div>
       <h3>Risk Matrix</h3>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        {/* Y-axis label */}
         <div style={{ marginBottom: "5px" }}>Likelihood</div>
         <div style={{ display: "flex" }}>
           <div style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", marginRight: "5px" }}>
@@ -260,50 +272,67 @@ const RiskMatrix = ({ highlightCoordinates }) => {
   );
 };
 
+// Updated Risk Spectrum with increased width, vertical line indicator, and label.
 const RiskSpectrum = ({ overallRisk }) => {
-  const sliderWidth = 400; // pixels
-  // Map overall risk (range 1-25) to a position on the slider.
+  const sliderWidth = 700; // Increased width (75% wider than 400px)
+  // Map overall risk (range: 1-25) to a position on the slider.
   const position = ((overallRisk - 1) / (25 - 1)) * sliderWidth;
+
+  const displayedScore = Math.round(overallRisk) || 0;
+  const riskLabel = overallRisk > 0 ? getRiskLevelLabel(displayedScore) : "N/A";
 
   const sliderContainerStyle = {
     width: sliderWidth,
     margin: "0 auto",
+    position: "relative",
+    height: "60px",
   };
 
   const sliderStyle = {
-    position: "relative",
+    position: "absolute",
+    bottom: "0",
     width: "100%",
     height: "30px",
-    // Adjusted gradient to include more defined yellow/orange midpoints.
     background:
       "linear-gradient(to right, #a8e6a3 0%, #d4f7a3 20%, #f7f7a3 50%, #f7d4a3 80%, #f7a8a8 100%)",
     borderRadius: "10px",
-    marginBottom: "10px",
   };
 
   const indicatorStyle = {
     position: "absolute",
-    left: position - 7,
-    top: -10,
-    width: "0",
-    height: "0",
-    borderLeft: "7px solid transparent",
-    borderRight: "7px solid transparent",
-    borderBottom: "10px solid black",
+    left: position - 1, // centered line (2px wide)
+    top: 0,
+    bottom: 0,
+    width: "2px",
+    backgroundColor: "black",
+  };
+
+  const labelStyle = {
+    position: "absolute",
+    left: position - 40,
+    top: -25,
+    width: "80px",
+    textAlign: "center",
+    fontWeight: "bold",
   };
 
   const labelContainerStyle = {
     display: "flex",
     justifyContent: "space-between",
+    position: "absolute",
+    bottom: -25,
+    width: "100%",
   };
 
   return (
     <div>
       <h3>Risk Spectrum</h3>
       <div style={sliderContainerStyle}>
-        <div style={sliderStyle}>
-          <div style={indicatorStyle}></div>
+        <div style={labelStyle}>
+          {riskLabel} ({displayedScore})
         </div>
+        <div style={sliderStyle}></div>
+        <div style={indicatorStyle}></div>
         <div style={labelContainerStyle}>
           <span>Very Low</span>
           <span>Low</span>
@@ -316,8 +345,6 @@ const RiskSpectrum = ({ overallRisk }) => {
     </div>
   );
 };
-
-// --- Main App Component ---
 
 const App = () => {
   const [matterName, setMatterName] = useState("");
@@ -339,7 +366,7 @@ const App = () => {
   const avgSeverity = computeWeightedAverage(severityRatings) || 0;
   const overallRisk = avgLikelihood * avgSeverity;
 
-  // Determine which cell to highlight based on rounded average likelihood and severity.
+  // Determine the cell to highlight based on rounded average values.
   const highlightedLikelihood = Math.min(5, Math.max(1, Math.round(avgLikelihood)));
   const highlightedSeverity = Math.min(5, Math.max(1, Math.round(avgSeverity)));
   const highlightCoordinates = {
@@ -388,10 +415,17 @@ const App = () => {
     }
   };
 
+  const markdownText = generateMarkdownTable(likelihoodRisks, severityRisks);
+
+  const copyMarkdownToClipboard = () => {
+    navigator.clipboard.writeText(markdownText);
+    alert("Markdown copied to clipboard!");
+  };
+
   return (
     <div style={{ fontFamily: "Arial, sans-serif", padding: "20px" }}>
       <h2>Legal Risk Assessment Matrix Tool</h2>
-      {/* Matter name and save/load controls */}
+      {/* Matter Name & Save/Load Controls */}
       <div style={{ marginBottom: "20px" }}>
         <label>Matter Name: </label>
         <input
@@ -425,7 +459,7 @@ const App = () => {
         </button>
       </div>
 
-      {/* Stacked Risk Factor Input Sections */}
+      {/* Stacked Input Sections */}
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <RiskInputSection
           type="Likelihood"
@@ -441,13 +475,13 @@ const App = () => {
         />
       </div>
 
-      {/* Display added risk factors */}
+      {/* Display Saved Risk Factors */}
       <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap" }}>
         <RiskFactorsTable title="Likelihood" risks={likelihoodRisks} />
         <RiskFactorsTable title="Severity" risks={severityRisks} />
       </div>
 
-      {/* Exportable Area: Matrix and Spectrum */}
+      {/* Exportable Area: Matrix & Spectrum */}
       <div
         ref={exportRef}
         style={{
@@ -464,7 +498,7 @@ const App = () => {
         </div>
       </div>
 
-      {/* Export Button */}
+      {/* Export Buttons */}
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <button
           onClick={handleExportPNG}
@@ -473,11 +507,41 @@ const App = () => {
             padding: "8px 16px",
             boxShadow: "2px 2px 5px rgba(0,0,0,0.2)",
             cursor: "pointer",
+            marginRight: "10px",
           }}
         >
           Export as PNG
         </button>
       </div>
+
+      {/* Markdown Export Section */}
+      {markdownText && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>Risk Factors (Markdown Export)</h3>
+          <pre
+            style={{
+              backgroundColor: "#f4f4f4",
+              padding: "10px",
+              borderRadius: "4px",
+              overflowX: "auto",
+            }}
+          >
+            {markdownText}
+          </pre>
+          <button
+            onClick={copyMarkdownToClipboard}
+            style={{
+              borderRadius: "8px",
+              padding: "5px 10px",
+              boxShadow: "2px 2px 5px rgba(0,0,0,0.2)",
+              cursor: "pointer",
+              marginTop: "10px",
+            }}
+          >
+            Copy Markdown to Clipboard
+          </button>
+        </div>
+      )}
     </div>
   );
 };
