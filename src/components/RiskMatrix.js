@@ -215,7 +215,8 @@ const RiskFactorsTable = ({ title, risks }) => {
   );
 };
 
-// RiskMatrix component remains largely unchanged.
+// Inside your RiskMatrix.js file (keep the rest of your code intact)
+
 const RiskMatrix = ({ highlightCoordinates }) => {
   const grid = [];
   for (let likelihood = 1; likelihood <= 5; likelihood++) {
@@ -232,55 +233,47 @@ const RiskMatrix = ({ highlightCoordinates }) => {
     }
     grid.push(row);
   }
-  // Reverse rows so that lowest likelihood is at the bottom.
+  // Reverse rows so that the lowest likelihood appears at the bottom.
   grid.reverse();
 
-  const cellStyle = {
-    width: "100px",
-    height: "60px",
-    border: "1px solid #ccc",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    fontSize: "12px",
-    transition: "opacity 0.3s",
-  };
+  // Flatten the grid array so CSS grid can handle the layout.
+  const cells = grid.flat();
 
   return (
     <div className="risk-matrix">
       <h3>Risk Matrix</h3>
-      <div className="matrix-container">
+      <div className="matrix-wrapper">
         <div className="vertical-label">Likelihood</div>
-        <div className="matrix-grid">
-          {grid.map((row, rowIndex) => (
-            <div key={rowIndex} style={{ display: "flex" }}>
-              {row.map((cell, cellIndex) => {
-                const isHighlighted =
-                  highlightCoordinates &&
-                  highlightCoordinates.likelihood === cell.likelihood &&
-                  highlightCoordinates.severity === cell.severity;
-                return (
-                  <div
-                    key={cellIndex}
-                    style={{
-                      ...cellStyle,
-                      backgroundColor: cell.color,
-                      opacity: isHighlighted ? 1 : 0.25,
-                    }}
-                  >
-                    <div>{cell.label}</div>
-                    <div>{cell.score}</div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+        <div className="matrix-content">
+          <div className="horizontal-label">Severity</div>
+          <div className="matrix-grid">
+            {cells.map((cell, index) => {
+              const isHighlighted =
+                highlightCoordinates &&
+                highlightCoordinates.likelihood === cell.likelihood &&
+                highlightCoordinates.severity === cell.severity;
+              return (
+                <div
+                  key={index}
+                  className="matrix-cell"
+                  style={{
+                    backgroundColor: cell.color,
+                    opacity: isHighlighted ? 1 : 0.25,
+                  }}
+                >
+                  <div>{cell.label}</div>
+                  <div>{cell.score}</div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default RiskMatrix;
 
 // RiskSpectrum with adjusted spacing so the label doesn't overlap.
 const RiskSpectrum = ({ overallRisk }) => {
